@@ -1,58 +1,70 @@
-class PNode(object):
-    def __init__(self, val=None, priority=0):
-        self.val = val
-        self.priority = priority
+from __future__ import annotations
+import sys
 
-class Priority_Queue(object):
-    def __init__(self):
-        self.priority_list = [PNode(0)]
+class letra:
+    def __init__(self, letra: str, freq: int):
+        self.letra: str = letra
+        self.freq: int = freq
+        self.bitstring: dict[str, str] = {}
 
-    def insert(self, val):
-        self.priority_list.append(val)
-        self.sort_up(len(self.priority_list) - 1)
+    def __repr__(self) -> str:
+        return f"{self.letra}:{self.freq}"
 
-    def pop(self):
-        try:
-            value = self.priority_list[1]
-        except IndexError:
-            raise IndexError("List empty")
-        try:
-            back_value = self.priority_list.pop()
-            self.priority_list[1] = back_value
-            self.sort_down(1)
-        except IndexError:
-            return back_value
-        return value
+class TreeNode:
+        def _init_(self, freq: int, left: letra | TreeNode, right: letra | TreeNode):
+            self.freq: int = freq
+            self.left: letra | TreeNode = left
+            self.right: letra | TreeNode = right
 
-    def peek(self):
-        try:
-            return self.priority_list[1].val
-        except IndexError:
-            raise IndexError("List empty")
-
-    def sort_down(self, index):
-        while (index * 2) < (len(self.priority_list) - 1):
-            max_child = self.max_child(index)
-            if self.priority_list[max_child].priority >= self.priority_list[index].priority:
-                temp = self.priority_list[index]
-                self.priority_list[index] = self.priority_list[max_child]
-                self.priority_list[max_child] = temp
-            index = max_child
-
-    def sort_up(self, index):
-        while self.priority_list[index].priority > self.priority_list[index // 2].priority:
-            if index == 1:
+def parse_file(file_path: str) -> list[letra]:
+    
+    chars: dict[str, int] = {}
+    with open(file_path) as f:
+        while True:
+            c = f.read(1)
+            if not c:
                 break
-            temp = self.priority_list[index]
-            self.priority_list[index] = self.priority_list[index // 2]
-            self.priority_list[index // 2] = temp
-            index = index // 2
+            chars[c] = chars[c] + 1 if c in chars else 1
+    return sorted((letra(c, f) for c, f in chars.items()), key=lambda x: x.freq)
 
-    def max_child(self, index):
-        if (index * 2 + 1) > (len(self.priority_list) - 1):
-            return (index * 2)
-        if self.priority_list[index * 2].priority > self.priority_list[index * 2 + 1].priority:
-            return (index * 2)
-        return (index * 2 + 1)
+def build_tree(letras: list[letra]) -> letra | TreeNode:
+    
+    response: list[letra | TreeNode] = letra
+    while len(response) > 1:
+        left = response.pop(0)
+        right = response.pop(0)
+        total_freq = left.freq + right.freq
+        node = TreeNode(total_freq, left, right)
+        response.append(node)
+        response.sort(key=lambda x: x.freq)
+    return response[0]
 
-    insert(1,2,3)
+def traverse_tree(root: letra | TreeNode, bitstring: str) -> list[letra]:
+    
+    if isinstance(root, letra):
+        root.bitstring[root.letra] = bitstring
+        return [root]
+    treenode: TreeNode = root
+    letters = []
+    letters = traverse_tree(treenode.left, bitstring + "0")
+    letters = traverse_tree(treenode.right, bitstring + "1")
+    return letters
+
+def huffman(file_path: str) -> None:
+    
+    letters_list = parse_file(file_path)
+    root = build_tree(letters_list)
+    letters = {
+        k: v for letter in traverse_tree(root, "") for k, v in letter.bitstring.items()
+    }
+    print(f"Huffman Coding  of {file_path}: ")
+    with open(file_path) as f:
+        while True:
+            c = f.read(1)
+            if not c:
+                break
+            print(letters[c], end=" ")
+    print()
+
+if __name__ == "__main__":
+    huffman(sys.argv[1])
