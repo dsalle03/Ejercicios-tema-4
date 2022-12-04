@@ -18,7 +18,6 @@ G.add_node('4', tipo='desvio')
 G.add_node('5', tipo='desvio')
 G.add_node('6', tipo='desvio')
 
-#Se definen las aristas
 G.add_edge('King\'s Cross', '1')
 G.add_edge('1', '2')
 G.add_edge('2', '3')
@@ -53,7 +52,6 @@ nx.draw_networkx_nodes(G, pos=nx.spring_layout(G), nodelist=camino_mas_corto_vic
 nx.draw_networkx_nodes(G, pos=nx.spring_layout(G), nodelist=camino_mas_corto_st_king, node_color='r')
 
 plt.show()
-
 
 nx.draw(G, with_labels=True)
 nx.draw_networkx_nodes(G, pos=nx.spring_layout(G), nodelist=camino_mas_corto_king_waterloo, node_color='r')
